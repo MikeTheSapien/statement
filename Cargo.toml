@@ -1,0 +1,15 @@
+[package]
+name = "statement"
+version = "0.1.0"
+edition = "2021"
+authors = ["Christopher Shain <christophershain@gmail.com>"]
+repository = "https://github.com/ChrisShain/statement"
+license = "MIT"
+
+[dependencies]
+thiserror = "1.0.65"
+
+[dev-dependencies]
+anyhow = "1.0.91"
+atomic_float = "1.1.0"
+tracing = "0.1.40"

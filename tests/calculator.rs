@@ -46,6 +46,8 @@ mod calculator_tests {
         };
 
         let mut sm = StateMachineFactory::<Events, States, &CalcData>::new()
+            // This is an example of a logger that runs before any other transition, but doesn't
+            // do anything in terms of state transitions itself.
             .with_transition_effect(
                 Any,
                 Same,
@@ -92,6 +94,9 @@ mod calculator_tests {
                 swap(d.data);
                 Ok(())
             })
+            // This is an example of a logger that runs after any other transition, but doesn't
+            // do anything in terms of state transitions itself. It continues the log lines from
+            // the earlier logger
             .with_transition_effect(
                 Any,
                 Same,
@@ -101,18 +106,19 @@ mod calculator_tests {
                 })
             .lock().build(States::Idle, &mut init_data);
 
-        sm.handle_event(Events::Digit {digit: 2}).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Add).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Digit {digit: 0}).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Subtract).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Digit {digit: 1}).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Multiply).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Digit {digit: 1}).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Digit {digit: 2}).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Digit {digit: 6}).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Divide).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Digit {digit: 3}).map_err(|_| { anyhow!("error transitioning")})?;
-        sm.handle_event(Events::Equals).map_err(|_| { anyhow!("error transitioning")})?;
+        let error_mapper = |_| { anyhow!("error transitioning") };
+        sm.handle_event(Events::Digit {digit: 2}).map_err(error_mapper)?;
+        sm.handle_event(Events::Add).map_err(error_mapper)?;
+        sm.handle_event(Events::Digit {digit: 0}).map_err(error_mapper)?;
+        sm.handle_event(Events::Subtract).map_err(error_mapper)?;
+        sm.handle_event(Events::Digit {digit: 1}).map_err(error_mapper)?;
+        sm.handle_event(Events::Multiply).map_err(error_mapper)?;
+        sm.handle_event(Events::Digit {digit: 1}).map_err(error_mapper)?;
+        sm.handle_event(Events::Digit {digit: 2}).map_err(error_mapper)?;
+        sm.handle_event(Events::Digit {digit: 6}).map_err(error_mapper)?;
+        sm.handle_event(Events::Divide).map_err(error_mapper)?;
+        sm.handle_event(Events::Digit {digit: 3}).map_err(error_mapper)?;
+        sm.handle_event(Events::Equals).map_err(error_mapper)?;
 
         assert_eq!(42f64, sm.data.input_value.load(SeqCst));
 
